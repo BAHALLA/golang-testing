@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io"
+	"os"
 	"testing"
 )
 
@@ -37,4 +39,26 @@ func TestIsPrime(t *testing.T) {
 		}
 
 	}
+}
+
+func TestPrompt(t *testing.T) {
+
+	oldOut := os.Stdout
+
+	r, w, _ := os.Pipe()
+
+	os.Stdout = w
+
+	prompt()
+
+	_ = w.Close()
+
+	os.Stdout = oldOut
+
+	out, _ := io.ReadAll(r)
+
+	if string(out) != "=>" {
+		t.Errorf("incorrect prompt: expcted => but got %s", out)
+	}
+
 }

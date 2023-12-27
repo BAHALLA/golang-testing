@@ -32,7 +32,7 @@ func intro() {
 }
 
 func prompt() {
-	fmt.Print("=> ")
+	fmt.Print("=>")
 }
 
 func readUserInput(doneChan chan bool) {
