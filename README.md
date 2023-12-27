@@ -10,5 +10,6 @@ go test -v .
 ```shell
 go test -cover .
 go test -coverprofile=coverage.out
+go tool cover -html=coverage.out
 ```
 ![coverage test](docs/coverage.png)
