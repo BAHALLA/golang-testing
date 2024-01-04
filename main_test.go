@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"io"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -61,4 +63,57 @@ func TestPrompt(t *testing.T) {
 		t.Errorf("incorrect prompt: expcted => but got %s", out)
 	}
 
+}
+
+func TestIntro(t *testing.T) {
+
+	oldOut := os.Stdout
+
+	r, w, _ := os.Pipe()
+
+	os.Stdout = w
+
+	intro()
+
+	_ = w.Close()
+
+	os.Stdout = oldOut
+
+	out, _ := io.ReadAll(r)
+
+	if !strings.Contains(string(out), "Enter a number") {
+		t.Errorf("incorrect intro: expcted string to contain Enter a number, but got %s", out)
+	}
+
+}
+
+func TestCheckNumbers(t *testing.T) {
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{name: "empty", input: "", expected: "please enter a number"},
+		{name: "zero", input: "0", expected: "0 by definition is not a prime number"},
+		{name: "one", input: "1", expected: "1 by definition is not a prime number"},
+		{name: "two", input: "2", expected: "2 is prime number"},
+		{name: "three", input: "3", expected: "3 is prime number"},
+		{name: "negative", input: "-4", expected: "Negative numbers by definition are not prime"},
+		{name: "four", input: "4", expected: "4 is not prime because it is devisable by 2"},
+		{name: "typed", input: "sdfdf", expected: "please enter a number"},
+		{name: "quit", input: "q", expected: ""},
+	}
+
+	for _, e := range tests {
+
+		input := strings.NewReader(e.input)
+		reader := bufio.NewScanner(input)
+
+		res, _ := checkNumbers(reader)
+
+		if !strings.EqualFold(res, e.expected) {
+			t.Errorf("%s: expected %s, but got %s", e.name, e.expected, res)
+		}
+	}
 }

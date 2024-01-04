@@ -79,7 +79,7 @@ func isPrime(n int) (bool, string) {
 		return false, "Negative numbers by definition are not prime"
 	}
 
-	for i := 2; i < n/2; i++ {
+	for i := 2; i <= n/2; i++ {
 
 		if n%i == 0 {
 			return false, fmt.Sprintf("%d is not prime because it is devisable by %d", n, i)
