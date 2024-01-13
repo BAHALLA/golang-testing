@@ -7,7 +7,7 @@ import (
 
 func (app *app) home(w http.ResponseWriter, r *http.Request) {
 
-	_ = app.render(w, r, "home.page.gohtml", nil)
+	_ = app.render(w, r, "home.page.gohtml", &TemplateData{})
 }
 
 type TemplateData struct {
@@ -22,6 +22,8 @@ func (app *app) render(w http.ResponseWriter, r *http.Request, templ string, dat
 	if err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	}
+
+	data.IP = app.ipFromContext(r.Context())
 
 	err = parsedTemplate.Execute(w, data)
 
