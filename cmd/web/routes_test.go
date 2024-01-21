@@ -15,6 +15,7 @@ func TestAppRoutes(t *testing.T) {
 		method string
 	}{
 		{route: "/", method: "Get"},
+		{route: "/login", method: "Post"},
 		{route: "/static/*", method: "Get"},
 	}
 
