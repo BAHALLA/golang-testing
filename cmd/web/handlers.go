@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 )
 
-func (app *app) home(w http.ResponseWriter, r *http.Request) {
+func (app *app) Home(w http.ResponseWriter, r *http.Request) {
 
 	_ = app.render(w, r, "home.page.gohtml", &TemplateData{})
 }
@@ -31,4 +33,22 @@ func (app *app) render(w http.ResponseWriter, r *http.Request, templ string, dat
 		return err
 	}
 	return nil
+}
+
+func (app *app) Login(w http.ResponseWriter, r *http.Request) {
+
+	err := r.ParseForm()
+
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
+
+	log.Println(email, password)
+	fmt.Fprint(w, email)
+
 }
