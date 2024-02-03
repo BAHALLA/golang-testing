@@ -11,11 +11,11 @@ type contextKey string
 
 const contextUserKey contextKey = "user_ip"
 
-func (app *app) ipFromContext(ctx context.Context) string {
+func (app *application) ipFromContext(ctx context.Context) string {
 	return ctx.Value(contextUserKey).(string)
 }
 
-func (app *app) addIPToContext(next http.Handler) http.Handler {
+func (app *application) addIPToContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var ctx = context.Background()
 
@@ -44,9 +44,9 @@ func getIP(r *http.Request) (string, error) {
 		return "unknown", err
 	}
 
-	userIp := net.ParseIP(ip)
+	userIP := net.ParseIP(ip)
 
-	if userIp == nil {
+	if userIP == nil {
 		return "", fmt.Errorf("userIP: %q is not host:port", r.RemoteAddr)
 	}
 

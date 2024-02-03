@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -16,8 +19,6 @@ func TestAppHandlers(t *testing.T) {
 		{name: "home", url: "/", expectedStatusCode: http.StatusOK},
 		{name: "404", url: "/not-exist", expectedStatusCode: http.StatusNotFound},
 	}
-
-	var app app
 
 	routes := app.routes()
 
@@ -37,4 +38,39 @@ func TestAppHandlers(t *testing.T) {
 		}
 	}
 
+}
+
+func TestAppHome(t *testing.T) {
+
+	req, _ := http.NewRequest("GET", "/", nil)
+
+	req = addContextAndSessionToRequest(req, app)
+
+	rr := httptest.NewRecorder()
+
+	handler := http.HandlerFunc(app.Home)
+
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("Test Home return wrong http status, Got %d instead od 200", rr.Code)
+	}
+
+	body, _ := io.ReadAll(rr.Body)
+
+	if !strings.Contains(string(body), ` <small> From session:`) {
+		t.Errorf("did not found correct text in the body")
+	}
+}
+
+func getContext(req *http.Request) context.Context {
+	return context.WithValue(req.Context(), contextUserKey, "unknown")
+}
+
+func addContextAndSessionToRequest(req *http.Request, app application) *http.Request {
+
+	req = req.WithContext(getContext(req))
+	ctx, _ := app.Session.Load(req.Context(), req.Header.Get("X-Session"))
+
+	return req.WithContext(ctx)
 }

@@ -24,11 +24,13 @@ func (e errors) Add(field, msg string) {
 
 }
 
+// Form type define forms data ans erros
 type Form struct {
 	Data   url.Values
 	Errors errors
 }
 
+// NewForm create new form
 func NewForm(data url.Values) *Form {
 	return &Form{
 		Data:   data,
@@ -36,6 +38,7 @@ func NewForm(data url.Values) *Form {
 	}
 }
 
+// Has check if form has a field
 func (f *Form) Has(field string) bool {
 
 	x := f.Data.Get(field)
@@ -43,6 +46,7 @@ func (f *Form) Has(field string) bool {
 	return x != ""
 }
 
+// Required define field that are required in the form
 func (f *Form) Required(fields ...string) {
 	for _, field := range fields {
 		value := f.Data.Get(field)
@@ -53,6 +57,7 @@ func (f *Form) Required(fields ...string) {
 	}
 }
 
+// Check checks if form is valide
 func (f *Form) Check(ok bool, key string, msg string) {
 
 	if !ok {
@@ -60,6 +65,7 @@ func (f *Form) Check(ok bool, key string, msg string) {
 	}
 }
 
+// Valid check if there is any error in the form
 func (f *Form) Valid() bool {
 	return len(f.Errors) == 0
 }

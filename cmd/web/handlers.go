@@ -5,21 +5,33 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"path"
+	"time"
 )
 
-func (app *app) Home(w http.ResponseWriter, r *http.Request) {
+func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 
-	_ = app.render(w, r, "home.page.gohtml", &TemplateData{})
+	var td = make(map[string]any)
+
+	if app.Session.Exists(r.Context(), "test") {
+		msg := app.Session.GetString(r.Context(), "test")
+		td["test"] = msg
+	} else {
+		app.Session.Put(r.Context(), "test", "this page was hit on "+time.Now().UTC().String())
+	}
+
+	_ = app.render(w, r, "home.page.gohtml", &TemplateData{Data: td})
 }
 
+// TemplateData define template data as a map
 type TemplateData struct {
 	IP   string
 	Data map[string]any
 }
 
-func (app *app) render(w http.ResponseWriter, r *http.Request, templ string, data *TemplateData) error {
+func (app *application) render(w http.ResponseWriter, r *http.Request, templ string, data *TemplateData) error {
 
-	parsedTemplate, err := template.ParseFiles("./templates/" + templ)
+	parsedTemplate, err := template.ParseFiles(path.Join("./templates/"+templ), path.Join("./templates/", "base.layout.gohtml"))
 
 	if err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
@@ -35,7 +47,7 @@ func (app *app) render(w http.ResponseWriter, r *http.Request, templ string, dat
 	return nil
 }
 
-func (app *app) Login(w http.ResponseWriter, r *http.Request) {
+func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 

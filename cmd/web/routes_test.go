@@ -19,8 +19,6 @@ func TestAppRoutes(t *testing.T) {
 		{route: "/static/*", method: "Get"},
 	}
 
-	var app app
-
 	mux := app.routes()
 
 	chiRoutes := mux.(chi.Routes)

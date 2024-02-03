@@ -3,14 +3,21 @@ package main
 import (
 	"log"
 	"net/http"
+
+	"github.com/alexedwards/scs/v2"
 )
 
-type app struct{}
+type application struct {
+	Session *scs.SessionManager
+}
 
 func main() {
 
 	// config
-	app := app{}
+	app := application{}
+
+	// get session
+	app.Session = getSession()
 
 	// routes
 	mux := app.routes()
