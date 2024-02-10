@@ -42,25 +42,44 @@ func TestAppHandlers(t *testing.T) {
 
 func TestAppHome(t *testing.T) {
 
-	req, _ := http.NewRequest("GET", "/", nil)
-
-	req = addContextAndSessionToRequest(req, app)
-
-	rr := httptest.NewRecorder()
-
-	handler := http.HandlerFunc(app.Home)
-
-	handler.ServeHTTP(rr, req)
-
-	if rr.Code != http.StatusOK {
-		t.Errorf("Test Home return wrong http status, Got %d instead od 200", rr.Code)
+	var tests = []struct {
+		name         string
+		putInSession string
+		expectedHTML string
+	}{
+		{"First visit", "", "<small> From session:"},
+		{"second visit", "hello, world!", "<small> From session: hello, world!"},
 	}
 
-	body, _ := io.ReadAll(rr.Body)
+	for _, e := range tests {
 
-	if !strings.Contains(string(body), ` <small> From session:`) {
-		t.Errorf("did not found correct text in the body")
+		req, _ := http.NewRequest("GET", "/", nil)
+
+		req = addContextAndSessionToRequest(req, app)
+
+		_ = app.Session.Destroy(req.Context())
+
+		if e.putInSession != "" {
+			app.Session.Put(req.Context(), "test", e.putInSession)
+		}
+
+		rr := httptest.NewRecorder()
+
+		handler := http.HandlerFunc(app.Home)
+
+		handler.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Errorf("Test Home return wrong http status, Got %d instead od 200", rr.Code)
+		}
+
+		body, _ := io.ReadAll(rr.Body)
+
+		if !strings.Contains(string(body), e.expectedHTML) {
+			t.Errorf("%s: did not find %s in the response body", e.name, e.expectedHTML)
+		}
 	}
+
 }
 
 func getContext(req *http.Request) context.Context {
